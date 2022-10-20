@@ -6,7 +6,7 @@ module.exports = {
       backgroundImage: {
         "outside-circle": "linear-gradient(135deg, #79f1a4 40%, #0e5cad 100%)",
         "inside-circle":
-          "linear-gradient(135deg, #79f1a570 10%, #0e5bad85 100%);",
+          "linear-gradient(135deg, #79f1a570 10%, #0e5bad85 100%)",
       },
       colors: {
         "border-blue": "#0e5badc7",

@@ -6,18 +6,6 @@ import victorImage from "../../img/victor.jpg";
 import "./home.css";
 
 const Home = () => {
-  const logout = useLogout();
-  const [user, setUser] = useState(null);
-  const [error, setError] = useState(null);
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      setUser(data);
-      setError(error);
-    };
-    fetchUser();
-  }, []);
-
   return (
     <div className="home-container">
       <div className="home-container01">
