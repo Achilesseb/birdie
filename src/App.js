@@ -2,6 +2,7 @@ import "./App.css";
 import LoginForm from "./components/LoginForm/LoginForm.jsx";
 import Home from "./components/HomeComponent/Home.jsx";
 import Chat from "./components/ChatComponent/Chat";
+import SignUpForm from "./components/SignUpComponent/SignUp";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { supabase } from "./index";
 import { useEffect, useState } from "react";
@@ -25,6 +26,7 @@ function App() {
       <Router>
         <Routes>
           <Route exact path="/login" element={<LoginForm />} />
+          <Route exact path="/signup" element={<SignUpForm />} />
           <Route exact path="/home" element={<Home />} />
           <Route exact path="/home/chat/:id" element={<Chat user={user} />} />
         </Routes>

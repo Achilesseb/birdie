@@ -1,20 +1,21 @@
-import { useState } from "react";
-import googleLogo from "../../img/google-icon.png";
-import facebookLogo from "../../img/facebook-icon.png";
-import githubLogo from "../../img/github-icon.png";
 import birdieLogo from "../../img/birdie-icon.png";
-import { RiLockPasswordFill, RiAccountCircleFill } from "react-icons/ri";
+import { useSignUp } from "../../customHooks/useSignUp";
+import {
+  RiLockPasswordFill,
+  RiAccountCircleFill,
+  RiLockPasswordLine,
+  RiMailAddFill,
+} from "react-icons/ri";
 import ButtonComponent from "../ButtonComponent";
 import { useNavigate } from "react-router-dom";
-import useLogin from "../../customHooks/useLogin";
-const LoginForm = () => {
-  const { login, error, isPending, setLoginPassword, setEmail } = useLogin();
-  const navigate = useNavigate();
-
-  const handleLoginClick = async () => {
-    await login();
-    navigate("/home");
-  };
+const SignUpForm = () => {
+  const {
+    setUsername,
+    setEmail,
+    setLoginPassword,
+    setPasswordConfirm,
+    signup,
+  } = useSignUp();
 
   return (
     <div class="relative flex h-full w-full bg-white">
@@ -44,6 +45,16 @@ const LoginForm = () => {
               class="h-full w-full rounded-md border-b-2 border-r-2 border-border-blue pl-[40px]  text-[1.2rem] outline-none focus:border-border-green focus:shadow-lg focus:shadow-border-blue  focus:outline-none "
               type="text"
               required
+              placeholder="Username"
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+          <div class="relative h-[50px] w-[350px] opacity-90">
+            <RiMailAddFill class="absolute ml-1 h-full" size="30px" />
+            <input
+              class="h-full w-full rounded-md border-b-2 border-r-2 border-border-blue pl-[40px]  text-[1.2rem] outline-none focus:border-border-green focus:shadow-lg focus:shadow-border-blue  focus:outline-none "
+              type="text"
+              required
               placeholder="Email"
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -58,48 +69,31 @@ const LoginForm = () => {
               onChange={(e) => setLoginPassword(e.target.value)}
             />
           </div>
-        </form>
-        <div class="mb-12 flex flex-col items-center justify-evenly">
-          <ButtonComponent
-            type="primary"
-            modifiers="z-20"
-            callback={handleLoginClick}
-          >
-            Log in
-          </ButtonComponent>
-          <span class="font-semibold text-slate-600 opacity-80">
-            or continue with
-          </span>
-          <div class="flex justify-evenly align-middle">
-            <img
-              src={googleLogo}
-              alt="google"
-              class="h-16"
-              onClick={() => login("google")}
-            />
-            <img
-              src={facebookLogo}
-              alt="facebook"
-              class="h-16"
-              onClick={() => login("facebook")}
-            />
-            <img
-              src={githubLogo}
-              alt="github"
-              class="h-14"
-              onClick={() => login("github")}
+          <div class="relative h-[50px] w-[350px] opacity-90">
+            <RiLockPasswordLine class="absolute ml-1 h-full" size="30px" />
+            <input
+              class="h-full w-full rounded-md border-b-2 border-r-2 border-border-blue  pl-[40px] text-[1.2rem] outline-none focus:border-border-green focus:shadow-lg focus:shadow-border-blue  focus:outline-none "
+              type="password"
+              required
+              placeholder="Confirm password"
+              onChange={(e) => setPasswordConfirm(e.target.value)}
             />
           </div>
+        </form>
+        <div class="mb-12 flex flex-col items-center justify-evenly">
+          <ButtonComponent type="primary" modifiers="z-20" callback={signup}>
+            Sign up
+          </ButtonComponent>
           <a
             class="absolute bottom-0 font-semibold text-slate-600 opacity-80"
-            href="/signup"
+            href="/login"
           >
-            No account? <span class="font-bold text-green-600">SIGN UP</span>
+            Already have an account?{" "}
+            <span class="font-bold text-green-600">Log In</span>!
           </a>
         </div>
       </div>
     </div>
   );
 };
-
-export default LoginForm;
+export default SignUpForm;

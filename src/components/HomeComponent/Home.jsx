@@ -6,6 +6,15 @@ import victorImage from "../../img/victor.jpg";
 import "./home.css";
 
 const Home = () => {
+  const [session, setSession] = useState();
+  const getCurrentSession = async () => {
+    const session = await supabase.auth.getSession();
+    setSession(session);
+  };
+  useEffect(() => {
+    getCurrentSession();
+  }, []);
+  console.log(session);
   return (
     <div className="home-container">
       <div className="home-container01">
