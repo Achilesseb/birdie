@@ -9,18 +9,15 @@ import { useEffect, useState } from "react";
 function App() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
+  const fetchUser = async () => {
+    const { data, error } = await supabase.auth.getUser();
+    setUser(data.user);
+    setError(error);
+  };
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      setUser(data.user);
-      setError(error);
-    };
     fetchUser();
   }, []);
-  const fetchDataFromDB = async () => {
-    const { data } = await supabase.from("chats").select("*");
-  };
-  useEffect(() => fetchDataFromDB(), []);
+
   return (
     <div class="h-full w-full">
       <Router>
@@ -28,7 +25,7 @@ function App() {
           <Route exact path="/login" element={<LoginForm />} />
           <Route exact path="/signup" element={<SignUpForm />} />
           <Route exact path="/home" element={<Home />} />
-          <Route exact path="/home/chat/:id" element={<Chat user={user} />} />
+          <Route exact path="chat/:id" element={<Chat user={user} />} />
         </Routes>
       </Router>
     </div>

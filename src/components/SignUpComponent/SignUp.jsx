@@ -7,7 +7,7 @@ import {
   RiMailAddFill,
 } from "react-icons/ri";
 import ButtonComponent from "../ButtonComponent";
-import { useNavigate } from "react-router-dom";
+
 const SignUpForm = () => {
   const {
     setUsername,

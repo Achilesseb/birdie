@@ -1,20 +1,38 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../index.js";
-import { useLogout } from "../../customHooks/useLogout";
 import birdieLogo from "../../img/birdie-icon.png";
 import victorImage from "../../img/victor.jpg";
 import "./home.css";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const navigate = useNavigate();
   const [session, setSession] = useState();
+  const [error, setError] = useState(null);
+  const [chats, setChats] = useState(null);
+  const handleNavigateToSpecificChat = (target) => {
+    console.log(target);
+    return navigate(`/chat/${target}`);
+  };
+  const getCurrentUserChats = async (session) => {
+    const userId = session.data.session.user.id;
+    const { data, error } = await supabase
+      .from("chats")
+      .select("*, messages(*)")
+      .contains("users", [`"${userId}"`]);
+    setError(error);
+    setChats(data);
+  };
   const getCurrentSession = async () => {
     const session = await supabase.auth.getSession();
     setSession(session);
+    getCurrentUserChats(session);
   };
+
   useEffect(() => {
     getCurrentSession();
   }, []);
-  console.log(session);
+  console.log(session, chats);
   return (
     <div className="home-container">
       <div className="home-container01">
@@ -36,21 +54,33 @@ const Home = () => {
         <div className="home-container08"></div>
         <div className="home-container09"></div>
         <ul className="home-ul list">
-          <li className="home-li list-item">
-            <div className="home-container10">
-              <img src={victorImage} alt="image" className="home-image1" />
-            </div>
-            <div className="home-container11">
-              <div className="home-container12">
-                <span className="home-text1">Victor Prisacariu</span>
-              </div>
-              <div className="home-container13">
-                <div className="home-container14">
-                  <span className="home-text2">Nu uita sa scoti...</span>
+          {chats !== null &&
+            chats.length > 0 &&
+            chats.map((chat) => (
+              <li
+                className="home-li list-item"
+                onClick={(e) => handleNavigateToSpecificChat(chat.id)}
+              >
+                <div className="home-container10">
+                  <img src={victorImage} alt="image" className="home-image1" />
                 </div>
-              </div>
-            </div>
-          </li>
+                <div className="home-container11">
+                  <div className="home-container12">
+                    <span className="home-text1">Victor Prisacariu</span>
+                  </div>
+                  <div className="home-container13">
+                    <div className="home-container14">
+                      <span className="home-text2">
+                        {(chat.messages !== null &&
+                          chat.messages.length > 0 &&
+                          chat.messages[chat.messages.length - 1].text) ||
+                          "Send a message to .."}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
         </ul>
       </div>
       <div className="home-container15">
