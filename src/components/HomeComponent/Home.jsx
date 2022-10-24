@@ -1,21 +1,25 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { supabase } from "../../index.js";
-import birdieLogo from "../../img/birdie-icon.png";
-import victorImage from "../../img/victor.jpg";
 import "./home.css";
-import { useNavigate } from "react-router-dom";
+import birdieLogo from "../../img/birdie-icon.png";
+import ChatLabel from "../ChatComponent/ChatLabel.jsx";
 
 const Home = () => {
-  const navigate = useNavigate();
   const [session, setSession] = useState();
+  const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState(null);
   const [chats, setChats] = useState(null);
-  const handleNavigateToSpecificChat = (target) => {
-    console.log(target);
-    return navigate(`/chat/${target}`);
+
+  const getCurrentUser = async (userId) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId);
+
+    setCurrentUser(data);
   };
-  const getCurrentUserChats = async (session) => {
-    const userId = session.data.session.user.id;
+  const getCurrentUserChats = async (userId) => {
     const { data, error } = await supabase
       .from("chats")
       .select("*, messages(*)")
@@ -25,19 +29,22 @@ const Home = () => {
   };
   const getCurrentSession = async () => {
     const session = await supabase.auth.getSession();
+    const userId = session.data.session.user.id;
+
     setSession(session);
-    getCurrentUserChats(session);
+    getCurrentUser(userId);
+    getCurrentUserChats(userId);
   };
 
   useEffect(() => {
     getCurrentSession();
   }, []);
-  console.log(session, chats);
+
   return (
     <div className="home-container">
       <div className="home-container01">
         <div className="home-container02">
-          <img src={birdieLogo} alt="image" className="home-image" />
+          <img src={birdieLogo} alt="logo" className="home-image" />
         </div>
         <div className="home-container03">
           <span className="home-text">Birdie</span>
@@ -57,29 +64,11 @@ const Home = () => {
           {chats !== null &&
             chats.length > 0 &&
             chats.map((chat) => (
-              <li
-                className="home-li list-item"
-                onClick={(e) => handleNavigateToSpecificChat(chat.id)}
-              >
-                <div className="home-container10">
-                  <img src={victorImage} alt="image" className="home-image1" />
-                </div>
-                <div className="home-container11">
-                  <div className="home-container12">
-                    <span className="home-text1">Victor Prisacariu</span>
-                  </div>
-                  <div className="home-container13">
-                    <div className="home-container14">
-                      <span className="home-text2">
-                        {(chat.messages !== null &&
-                          chat.messages.length > 0 &&
-                          chat.messages[chat.messages.length - 1].text) ||
-                          "Send a message to .."}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </li>
+              <ChatLabel
+                key={chat.id}
+                chat={chat}
+                currentUserId={session.data.session.user.id}
+              />
             ))}
         </ul>
       </div>

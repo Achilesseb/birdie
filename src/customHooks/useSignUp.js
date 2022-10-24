@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../index";
+import defaultAvatar from "../img/default.jpg";
 export const useSignUp = () => {
   const [username, setUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -9,20 +10,17 @@ export const useSignUp = () => {
   const signup = async () => {
     try {
       if (loginPassword !== passwordConfirm) return;
-      //   const { data } = await supabase.from("auth");
-      //   console.log(data);
-      //   for (let i = 0; i < data.length; i++) {
-      //     if (data[i].username === username || data[i].email === email)
-      //       throw new Error("User already exists!");
-      //   }
-      await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: email,
         password: loginPassword,
-        options: {
-          data: {
-            username,
-          },
-        },
+      });
+
+      await supabase.from("profiles").insert({
+        id: data.user.id,
+        email: data.user.email,
+        username: username,
+        is_verified: false,
+        avatar_url: defaultAvatar,
       });
     } catch (err) {
       console.log(err);

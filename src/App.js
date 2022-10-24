@@ -19,7 +19,7 @@ function App() {
   }, []);
 
   return (
-    <div class="h-full w-full">
+    <div className="h-full w-full">
       <Router>
         <Routes>
           <Route exact path="/login" element={<LoginForm />} />

@@ -18,16 +18,12 @@ const useLogin = () => {
             redirectTo: "http://localhost:3000/home",
           },
         });
-        console.log("Third party");
       } else if (email && loginPassword) {
         await supabase.auth.signInWithPassword({
           email: email,
           password: loginPassword,
         });
-        console.log("Email and password");
       }
-
-      console.log("Final");
     } catch (err) {
       setError(err.message);
       setIsPending(false);
