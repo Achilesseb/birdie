@@ -7,13 +7,22 @@ export const getSession = async () => {
   const { data } = await supabase.auth.getSession();
   return data;
 };
-export const fetchMessages = async (params) => {
-  const { data, error } = await supabase
+export const fetchMessages = async (params, range) => {
+  const { count } = await supabase
     .from("messages")
-    .select()
-    .eq("chatID", `${params.id}`)
-    .order("created_at", { ascending: true });
-  return data;
+    .select("*", { count: "exact" });
+  const bottomLimit =
+    count - (range + 1) * 30 > 0 ? count - (range + 1) * 30 : 0;
+
+  if (bottomLimit >= 0) {
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("chatID", `${params.id}`)
+      .order("created_at", { ascending: true })
+      .range(bottomLimit, count - 30 * range - 1);
+    return { data, count };
+  }
 };
 
 export const fetchCurrentUserChats = async (userId) => {

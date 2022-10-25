@@ -16,10 +16,15 @@ const Chat = ({ user }) => {
   const receiverUser = useLocation().state.receiver[0];
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
+  const messagesStartRef = useRef(null);
+  const messagesIntermediateRef = useRef(null);
   const params = useParams();
   const [messages, setMessages] = useState(null);
   const [messageToSend, setMessageToSend] = useState("");
   const [session, setSession] = useState(null);
+  const [rangeLimitter, setRangeLimitter] = useState(0);
+  const [newMessageTrigger, setNewMessageTrigger] = useState(true);
+  const [messageCount, setMessageCount] = useState(null);
 
   channel
     .on(
@@ -30,22 +35,63 @@ const Chat = ({ user }) => {
         table: "messages",
         filter: `chatID=eq.${params.id}`,
       },
-      (payload) => setMessages((prevMessages) => [...prevMessages, payload.new])
+      (payload) => {
+        setMessages((prevMessages) => [...prevMessages, payload.new]);
+        setNewMessageTrigger(true);
+      }
     )
     .subscribe();
 
   const initilizeChat = async () => {
-    setMessages(await fetchMessages(params));
+    const { data } = await fetchMessages(params, rangeLimitter);
+    setMessages(data);
     setSession(await getSession());
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behaviour: "smooth" });
+    }, 100);
+  };
+  const fillChatWithOlderMessages = async () => {
+    const { data: olderMessages, count } = await fetchMessages(
+      params,
+      rangeLimitter
+    );
+    setMessageCount(count);
+    if (olderMessages) {
+      setMessages((prevMessages) => [...olderMessages, ...prevMessages]);
+      setNewMessageTrigger(false);
+      setTimeout(() => {
+        messagesIntermediateRef.current?.scrollIntoView({
+          behaviour: "smooth",
+          block: "end",
+        });
+      }, 100);
+    }
+  };
+  const onScroll = () => {
+    if (messageCount !== messages.length)
+      if (messagesStartRef.current) {
+        const { scrollTop } = messagesStartRef.current;
+        if (scrollTop === 0) {
+          setRangeLimitter(rangeLimitter + 1);
+        }
+      }
   };
 
   useEffect(() => {
     initilizeChat();
+    return setRangeLimitter(0);
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behaviour: "smooth" });
-  }, [messages]);
+    if (newMessageTrigger === true) {
+      messagesEndRef.current?.scrollIntoView({ behaviour: "smooth" });
+      setNewMessageTrigger(false);
+    }
+  }, [newMessageTrigger]);
+
+  useEffect(() => {
+    if (rangeLimitter > 0) fillChatWithOlderMessages();
+  }, [rangeLimitter]);
 
   return (
     <div className="h-full w-full bg-inside-circle">
@@ -68,12 +114,21 @@ const Chat = ({ user }) => {
           <IoCameraOutline size="70%" className="w-10" />
         </div>
       </div>
-      <div className="b flex h-[80%] max-h-[80%] w-full flex-col gap-4 overflow-hidden overflow-y-scroll">
+      <div
+        className="b flex h-[80%] max-h-[80%] w-full flex-col gap-4 overflow-hidden overflow-y-scroll"
+        onScroll={onScroll}
+        ref={messagesStartRef}
+      >
+        <div>salut</div>
         {messages !== null &&
           messages.length > 0 &&
-          messages.map((message) =>
+          messages.map((message, index) =>
             message.sender === session.session.user.id ? (
-              <div className="flex h-auto w-full items-start" key={message.id}>
+              <div
+                className="flex h-auto w-full items-start"
+                key={message.id}
+                ref={messagesIntermediateRef}
+              >
                 <div className="h-full w-[10%] rounded-full bg-white">
                   <img
                     className="rounded-full"
@@ -93,6 +148,7 @@ const Chat = ({ user }) => {
               <div
                 className="flex h-auto w-full flex-row-reverse justify-start"
                 key={message.id}
+                ref={messagesIntermediateRef}
               >
                 <div className="h-full w-[10%] rounded-full bg-slate-500">
                   <img
