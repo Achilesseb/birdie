@@ -14,7 +14,7 @@ const ChatLabel = ({ chat, currentUserId }) => {
       .eq("id", receiverId);
     setReceiver(data);
   };
-  const lastMessage = chat.messages[chat.messages.length - 1].text;
+  const lastMessage = chat.messages[chat.messages.length - 1];
 
   useEffect(() => {
     getReceiverData();
@@ -47,9 +47,16 @@ const ChatLabel = ({ chat, currentUserId }) => {
             <div className="home-container14">
               <span className="home-text2">
                 {(chat.messages !== null &&
-                  chat.messages.length > 0 &&
-                  lastMessage) ||
-                  "Send a message to .."}
+                chat.messages.length > 0 &&
+                lastMessage.sender === currentUserId
+                  ? `You: ${
+                      lastMessage.text.length > 15
+                        ? lastMessage.text.substring(0, 15) + "..."
+                        : lastMessage.text
+                    }`
+                  : lastMessage.text.length > 20
+                  ? lastMessage.text.substring(0, 20) + "..."
+                  : lastMessage.text) || "Send a message to .."}
               </span>
             </div>
           </div>

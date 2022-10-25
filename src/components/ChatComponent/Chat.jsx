@@ -50,6 +50,7 @@ const Chat = ({ user }) => {
       messagesEndRef.current?.scrollIntoView({ behaviour: "smooth" });
     }, 100);
   };
+
   const fillChatWithOlderMessages = async () => {
     const { data: olderMessages, count } = await fetchMessages(
       params,
@@ -67,8 +68,9 @@ const Chat = ({ user }) => {
       }, 100);
     }
   };
+
   const onScroll = () => {
-    if (messageCount !== messages.length)
+    if (messages && messageCount !== messages?.length)
       if (messagesStartRef.current) {
         const { scrollTop } = messagesStartRef.current;
         if (scrollTop === 0) {
@@ -79,7 +81,10 @@ const Chat = ({ user }) => {
 
   useEffect(() => {
     initilizeChat();
-    return setRangeLimitter(0);
+    return () => {
+      setMessages(null);
+      setRangeLimitter(0);
+    };
   }, []);
 
   useEffect(() => {
@@ -99,7 +104,7 @@ const Chat = ({ user }) => {
         <IoChevronBackCircleSharp
           size="70%"
           className="w-10"
-          onClick={(e) => navigate("/home")}
+          onClick={() => navigate("/home")}
         />
         <div className="flex h-[70%] w-full items-center justify-center">
           <img
@@ -119,17 +124,16 @@ const Chat = ({ user }) => {
         onScroll={onScroll}
         ref={messagesStartRef}
       >
-        <div>salut</div>
         {messages !== null &&
           messages.length > 0 &&
-          messages.map((message, index) =>
+          messages.map((message) =>
             message.sender === session.session.user.id ? (
               <div
                 className="flex h-auto w-full items-start"
                 key={message.id}
                 ref={messagesIntermediateRef}
               >
-                <div className="h-full w-[10%] rounded-full bg-white">
+                <div className="mx-1 h-full w-[10%] rounded-full ">
                   <img
                     className="rounded-full"
                     src={
@@ -140,7 +144,7 @@ const Chat = ({ user }) => {
                     alt="user"
                   />
                 </div>
-                <div className="h-full w-[70%] rounded-xl bg-red-400 p-2 text-white">
+                <div className="h-full w-[70%] break-before-auto break-words rounded-xl bg-red-400 p-2 text-white">
                   {message.text}
                 </div>
               </div>
@@ -150,7 +154,7 @@ const Chat = ({ user }) => {
                 key={message.id}
                 ref={messagesIntermediateRef}
               >
-                <div className="h-full w-[10%] rounded-full bg-slate-500">
+                <div className="mx-1 h-full w-[10%] rounded-full ">
                   <img
                     className="rounded-full"
                     src={receiverUser?.avatar_url}
@@ -158,7 +162,7 @@ const Chat = ({ user }) => {
                     alt="user"
                   />
                 </div>
-                <div className=" h-full w-[70%] rounded-xl bg-slate-500 p-2 text-white">
+                <div className=" h-full w-[70%] break-before-auto break-words rounded-xl bg-slate-500 p-2 text-white">
                   {message.text}
                 </div>
               </div>
