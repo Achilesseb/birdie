@@ -126,48 +126,42 @@ const Chat = ({ user }) => {
       >
         {messages !== null &&
           messages.length > 0 &&
-          messages.map((message) =>
-            message.sender === session.session.user.id ? (
-              <div
-                className="flex h-auto w-full items-start"
-                key={message.id}
-                ref={messagesIntermediateRef}
-              >
-                <div className="mx-1 h-full w-[10%] rounded-full ">
+          messages.map((message, index) => (
+            <div
+              className={`flex h-auto w-full items-start  ${
+                message.sender === session.session.user.id
+                  ? "items-start"
+                  : "flex-row-reverse justify-start"
+              }`}
+              key={message.id}
+              ref={messagesIntermediateRef}
+            >
+              <div className="mx-1 h-full w-[10%] rounded-full ">
+                {messages[index]?.sender !== messages[index + 1]?.sender ? (
                   <img
                     className="rounded-full"
                     src={
-                      session.session.user.identities?.[0].identity_data
-                        ?.avatar_url || defaultUserImage
+                      message.sender === receiverUser.id
+                        ? receiverUser.avatar_url
+                        : session.session.user.identities?.[0].identity_data
+                            ?.avatar_url || defaultUserImage
                     }
                     referrerPolicy="no-referrer"
                     alt="user"
                   />
-                </div>
-                <div className="h-full w-[70%] break-before-auto break-words rounded-xl bg-red-400 p-2 text-white">
-                  {message.text}
-                </div>
+                ) : null}
               </div>
-            ) : (
               <div
-                className="flex h-auto w-full flex-row-reverse justify-start"
-                key={message.id}
-                ref={messagesIntermediateRef}
+                className={`h-full w-[70%] break-before-auto break-words rounded-xl ${
+                  message.sender === session.session.user.id
+                    ? "bg-red-400 p-2 text-white"
+                    : "bg-slate-500 p-2 text-white"
+                }`}
               >
-                <div className="mx-1 h-full w-[10%] rounded-full ">
-                  <img
-                    className="rounded-full"
-                    src={receiverUser?.avatar_url}
-                    referrerPolicy="no-referrer"
-                    alt="user"
-                  />
-                </div>
-                <div className=" h-full w-[70%] break-before-auto break-words rounded-xl bg-slate-500 p-2 text-white">
-                  {message.text}
-                </div>
+                {message.text}
               </div>
-            )
-          )}
+            </div>
+          ))}
         <div ref={messagesEndRef} />
       </div>
       <div className="flex h-[10%] w-full items-center justify-center ">

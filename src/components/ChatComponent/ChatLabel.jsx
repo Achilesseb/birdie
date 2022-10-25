@@ -30,7 +30,7 @@ const ChatLabel = ({ chat, currentUserId }) => {
     return (
       <li
         className="home-li list-item"
-        onClick={(e) => handleNavigateToSpecificChat(chat.id)}
+        onClick={() => handleNavigateToSpecificChat(chat.id)}
       >
         <div className="home-container10">
           <img
