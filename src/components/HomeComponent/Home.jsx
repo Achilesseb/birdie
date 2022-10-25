@@ -4,36 +4,41 @@ import { supabase } from "../../index.js";
 import "./home.css";
 import birdieLogo from "../../img/birdie-icon.png";
 import ChatLabel from "../ChatComponent/ChatLabel.jsx";
+import DropDown from "../DropDownComponent/DropDown.jsx";
+import { fetchCurrentUserChats } from "../../utils/helperFunctions.js";
+import { CircleLoader } from "react-spinners";
 
 const Home = () => {
   const [session, setSession] = useState();
-  const [currentUser, setCurrentUser] = useState(null);
-  const [error, setError] = useState(null);
   const [chats, setChats] = useState(null);
+  const [dropDownStatus, setDropDownStatus] = useState(false);
 
-  const getCurrentUser = async (userId) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId);
+  supabase
+    .channel("db-messages")
+    .on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "messages" },
+      (payload) => {
+        const payloadChatId = payload.new.chatID;
+        setChats((prevChats) => {
+          const oldChats = prevChats.filter(
+            (chat) => chat.id !== payloadChatId
+          );
+          const chatToModify = chats.find(
+            (chat) => chat.id === payload.new.chatID
+          );
+          chatToModify.messages.push(payload.new);
+          return [...oldChats, chatToModify];
+        });
+      }
+    )
+    .subscribe();
 
-    setCurrentUser(data);
-  };
-  const getCurrentUserChats = async (userId) => {
-    const { data, error } = await supabase
-      .from("chats")
-      .select("*, messages(*)")
-      .contains("users", [`"${userId}"`]);
-    setError(error);
-    setChats(data);
-  };
   const getCurrentSession = async () => {
     const session = await supabase.auth.getSession();
     const userId = session.data.session.user.id;
-
     setSession(session);
-    getCurrentUser(userId);
-    getCurrentUserChats(userId);
+    setChats(await fetchCurrentUserChats(userId));
   };
 
   useEffect(() => {
@@ -50,18 +55,24 @@ const Home = () => {
           <span className="home-text">Birdie</span>
         </div>
         <div className="home-container04">
-          <svg viewBox="0 0 1024 1024" className="home-icon">
+          <svg
+            viewBox="0 0 1024 1024"
+            className="home-icon"
+            onClick={() => setDropDownStatus(!dropDownStatus)}
+          >
             <path d="M128 256h768v86h-768v-86zM128 554v-84h768v84h-768zM128 768v-86h768v86h-768z"></path>
           </svg>
         </div>
       </div>
+
       <div className="home-container05">
+        {dropDownStatus === true ? <DropDown /> : null}
         <div className="home-container06"></div>
         <div className="home-container07"></div>
         <div className="home-container08"></div>
         <div className="home-container09"></div>
         <ul className="home-ul list">
-          {chats !== null &&
+          {(chats !== null &&
             chats.length > 0 &&
             chats.map((chat) => (
               <ChatLabel
@@ -69,7 +80,7 @@ const Home = () => {
                 chat={chat}
                 currentUserId={session.data.session.user.id}
               />
-            ))}
+            ))) || <CircleLoader size="100px" />}
         </ul>
       </div>
       <div className="home-container15">

@@ -9,42 +9,40 @@ import {
 } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { handleSubmitMessage } from "../../utils/helperFunctions";
+import { getSession, fetchMessages } from "../../utils/helperFunctions";
 
 const Chat = ({ user }) => {
-  const { state } = useLocation();
+  const channel = supabase.channel("db-messages");
+  const receiverUser = useLocation().state.receiver[0];
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
   const params = useParams();
   const [messages, setMessages] = useState(null);
   const [messageToSend, setMessageToSend] = useState("");
   const [session, setSession] = useState(null);
-  const receiverUser = state.receiver[0];
-  const fetchMessages = async () => {
-    const { data } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("chat_id", params.id);
 
-    setMessages(data);
-  };
-
-  const getSession = async () => {
-    const { data } = await supabase.auth.getSession();
-    setSession(data);
-  };
-  supabase
-    .channel("*")
-    .on("postgres_changes", { event: "*", schema: "*" }, (payload) => {
-      fetchMessages();
-    })
+  channel
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "messages",
+        filter: `chatID=eq.${params.id}`,
+      },
+      (payload) => setMessages((prevMessages) => [...prevMessages, payload.new])
+    )
     .subscribe();
-  const initilizeChat = () => {
-    fetchMessages();
-    getSession();
+
+  const initilizeChat = async () => {
+    setMessages(await fetchMessages(params));
+    setSession(await getSession());
   };
+
   useEffect(() => {
     initilizeChat();
   }, []);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behaviour: "smooth" });
   }, [messages]);
@@ -126,8 +124,10 @@ const Chat = ({ user }) => {
           placeholder="Type your message here.."
           type="text"
           onChange={(e) => setMessageToSend(e.target.value)}
-          onKeyPress={(e) =>
-            handleSubmitMessage(e, params, user, messages, messageToSend)
+          onKeyDown={(e) =>
+            e.key === "Enter"
+              ? handleSubmitMessage(e, params, user, messages, messageToSend)
+              : null
           }
         />
       </div>

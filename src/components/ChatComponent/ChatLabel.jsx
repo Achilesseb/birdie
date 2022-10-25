@@ -10,10 +10,12 @@ const ChatLabel = ({ chat, currentUserId }) => {
   const getReceiverData = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select()
+      .select("*")
       .eq("id", receiverId);
     setReceiver(data);
   };
+  const lastMessage = chat.messages[chat.messages.length - 1].text;
+
   useEffect(() => {
     getReceiverData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -46,7 +48,7 @@ const ChatLabel = ({ chat, currentUserId }) => {
               <span className="home-text2">
                 {(chat.messages !== null &&
                   chat.messages.length > 0 &&
-                  chat.messages[chat.messages.length - 1].text) ||
+                  lastMessage) ||
                   "Send a message to .."}
               </span>
             </div>
