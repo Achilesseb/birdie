@@ -177,7 +177,7 @@
     background-color: white;
     max-height: 100%;
     display: grid;
-    grid-template-rows: 8% 84% 8%;
+    grid-template-rows: 8% 92%;
   }
   .home-container01 {
     width: 100vw;
@@ -390,7 +390,7 @@
     justify-content: center;
   }
   .home-icon2 {
-    fill: #ffffff;
+    fill: #646464;
     width: auto;
     height: 43px;
     align-self: center;
@@ -411,7 +411,7 @@
     justify-content: center;
   }
   .home-icon4 {
-    fill: #ffffff;
+    fill: #646464;
     width: auto;
     height: 43px;
   }
@@ -429,7 +429,7 @@
     justify-content: center;
   }
   .home-icon6 {
-    fill: #ffffff;
+    fill: #646464;
     width: auto;
     height: 43px;
   }

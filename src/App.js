@@ -3,6 +3,7 @@ import LoginForm from "./components/LoginForm/LoginForm.jsx";
 import Home from "./components/HomeComponent/Home.jsx";
 import Chat from "./components/ChatComponent/Chat";
 import SignUpForm from "./components/SignUpComponent/SignUp";
+import People from "./components/PeopleComponent/People";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { supabase } from "./index";
 import { useEffect, useState } from "react";
@@ -26,6 +27,7 @@ function App() {
           <Route exact path="/signup" element={<SignUpForm />} />
           <Route exact path="/home" element={<Home />} />
           <Route exact path="chat/:id" element={<Chat user={user} />} />
+          <Route exact path="user/:uuid/people" element={<People />} />
         </Routes>
       </Router>
     </div>

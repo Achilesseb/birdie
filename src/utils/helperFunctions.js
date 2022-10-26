@@ -68,3 +68,20 @@ export const handleSubmitMessage = async (
     e.target.value = "";
   }
 };
+export const fetchUserFriendListIds = async (uuid) => {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("friend_list")
+    .eq("id", uuid);
+  return data[0].friend_list;
+};
+
+export const fetchUserFriendListData = async (ids) => {
+  const datas = await Promise.all(ids.map(getData));
+  return datas;
+};
+
+const getData = async (id) => {
+  const { data } = await supabase.from("profiles").select("*").eq("id", id);
+  return await data;
+};
