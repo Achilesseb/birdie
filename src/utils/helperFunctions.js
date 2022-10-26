@@ -1,4 +1,5 @@
 import { supabase } from "../index";
+
 export const addLeadingZeros = (num, length) => {
   return String(num).padStart(length, "0");
 };
@@ -17,9 +18,12 @@ export const fetchMessagesCount = async (params) => {
 };
 
 export const fetchMessages = async (params, range, messageCount) => {
+  const messageFetchLimit = 30;
   const bottomLimit =
-    messageCount - (range + 1) * 30 > 0 ? messageCount - (range + 1) * 30 : 0;
-  const topLimit = messageCount - 30 * range - 1;
+    messageCount - (range + 1) * messageFetchLimit > 0
+      ? messageCount - (range + 1) * messageFetchLimit
+      : 0;
+  const topLimit = messageCount - messageFetchLimit * range - 1;
 
   if (bottomLimit >= 0 && topLimit > 0) {
     const { data, error } = await supabase
@@ -60,6 +64,7 @@ export const handleSubmitMessage = async (
         created_at: new Date().toISOString().toLocaleString("ro-RO"),
       });
     }
+
     e.target.value = "";
   }
 };

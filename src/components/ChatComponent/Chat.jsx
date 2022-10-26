@@ -13,6 +13,7 @@ import {
   getSession,
   fetchMessages,
   fetchMessagesCount,
+  updateChatLastUpdate,
 } from "../../utils/helperFunctions";
 
 const Chat = ({ user }) => {

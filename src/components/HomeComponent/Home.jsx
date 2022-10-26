@@ -18,13 +18,12 @@ const Home = () => {
     .on(
       "postgres_changes",
       {
-        event: "INSERT",
+        event: "*",
         schema: "public",
         table: "messages",
         filter: `receiver=eq.${session?.data.session.user.id}`,
       },
       (payload) => {
-        console.log(payload);
         const payloadChatId = payload.new.chatID;
         setChats((prevChats) => {
           const oldChats = prevChats.filter(
@@ -33,8 +32,15 @@ const Home = () => {
           const chatToModify = chats.find(
             (chat) => chat.id === payload.new.chatID
           );
+          chatToModify.updated_at = payload.commit_timestamp;
           chatToModify.messages.push(payload.new);
-          return [...oldChats, chatToModify];
+          const newChats = [...oldChats, chatToModify].sort(
+            (a, b) =>
+              new Date(b.updated_at).getTime() -
+              new Date(a.updated_at).getTime()
+          );
+
+          return newChats;
         });
       }
     )
@@ -50,7 +56,7 @@ const Home = () => {
   useEffect(() => {
     getCurrentSession();
   }, []);
-  console.log(chats);
+
   return (
     <div className="home-container">
       <div className="home-container01">
@@ -80,15 +86,13 @@ const Home = () => {
         <ul className="home-ul list">
           {(chats !== null &&
             chats.length > 0 &&
-            chats
-              .sort((a, b) => b.createdAt > a.createdAt)
-              .map((chat) => (
-                <ChatLabel
-                  key={chat.id}
-                  chat={chat}
-                  currentUserId={session.data.session.user.id}
-                />
-              ))) || <CircleLoader size="100px" />}
+            chats.map((chat) => (
+              <ChatLabel
+                key={chat.id}
+                chat={chat}
+                currentUserId={session.data.session.user.id}
+              />
+            ))) || <CircleLoader size="100px" />}
         </ul>
       </div>
       <div className="home-container15">
