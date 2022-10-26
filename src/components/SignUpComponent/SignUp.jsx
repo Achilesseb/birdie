@@ -32,7 +32,7 @@ const SignUpForm = () => {
   useEffect(() => {
     if (session !== null) navigate("/home");
   }, [session]);
-  console.log(session);
+
   return (
     <div className="relative flex h-full w-full bg-white">
       <div className="absolute top-[-35vh] left-[-25vw] z-10 h-[50vh] w-[100%] scale-[1.5] rounded-full bg-outside-circle "></div>

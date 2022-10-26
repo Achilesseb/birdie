@@ -7,21 +7,29 @@ export const getSession = async () => {
   const { data } = await supabase.auth.getSession();
   return data;
 };
-export const fetchMessages = async (params, range) => {
+
+export const fetchMessagesCount = async (params) => {
   const { count } = await supabase
     .from("messages")
-    .select("*", { count: "exact" });
-  const bottomLimit =
-    count - (range + 1) * 30 > 0 ? count - (range + 1) * 30 : 0;
+    .select("*", { count: "exact" })
+    .eq("chatID", `${params.id}`);
+  return count;
+};
 
-  if (bottomLimit >= 0) {
+export const fetchMessages = async (params, range, messageCount) => {
+  const bottomLimit =
+    messageCount - (range + 1) * 30 > 0 ? messageCount - (range + 1) * 30 : 0;
+  const topLimit = messageCount - 30 * range - 1;
+
+  if (bottomLimit >= 0 && topLimit > 0) {
     const { data, error } = await supabase
       .from("messages")
       .select("*")
       .eq("chatID", `${params.id}`)
       .order("created_at", { ascending: true })
-      .range(bottomLimit, count - 30 * range - 1);
-    return { data, count };
+      .range(bottomLimit, topLimit);
+
+    return data;
   }
 };
 
@@ -39,14 +47,16 @@ export const handleSubmitMessage = async (
   params,
   user,
   messages,
-  messageToSend
+  messageToSend,
+  receiverUser
 ) => {
   if (e.key === "Enter" || e.type === "click") {
     if (e.target.value !== "") {
-      const { data, error } = await supabase.from("messages").insert({
+      await supabase.from("messages").insert({
         chatID: params.id,
         text: messageToSend,
         sender: user.id,
+        receiver: receiverUser.id,
         created_at: new Date().toISOString().toLocaleString("ro-RO"),
       });
     }

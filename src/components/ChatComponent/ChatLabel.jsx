@@ -50,13 +50,13 @@ const ChatLabel = ({ chat, currentUserId }) => {
                 chat.messages.length > 0 &&
                 lastMessage.sender === currentUserId
                   ? `You: ${
-                      lastMessage.text.length > 15
-                        ? lastMessage.text.substring(0, 15) + "..."
-                        : lastMessage.text
+                      lastMessage?.text.length > 15
+                        ? lastMessage?.text.substring(0, 15) + "..."
+                        : lastMessage?.text
                     }`
-                  : lastMessage.text.length > 20
-                  ? lastMessage.text.substring(0, 20) + "..."
-                  : lastMessage.text) || "Send a message to .."}
+                  : lastMessage?.text.length > 20
+                  ? lastMessage?.text.substring(0, 20) + "..."
+                  : lastMessage?.text) || "Send a message to .."}
               </span>
             </div>
           </div>

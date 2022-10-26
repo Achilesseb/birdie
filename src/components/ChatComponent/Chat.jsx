@@ -9,16 +9,20 @@ import {
 } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { handleSubmitMessage } from "../../utils/helperFunctions";
-import { getSession, fetchMessages } from "../../utils/helperFunctions";
+import {
+  getSession,
+  fetchMessages,
+  fetchMessagesCount,
+} from "../../utils/helperFunctions";
 
 const Chat = ({ user }) => {
+  const params = useParams();
   const channel = supabase.channel("db-messages");
   const receiverUser = useLocation().state.receiver[0];
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
   const messagesStartRef = useRef(null);
   const messagesIntermediateRef = useRef(null);
-  const params = useParams();
   const [messages, setMessages] = useState(null);
   const [messageToSend, setMessageToSend] = useState("");
   const [session, setSession] = useState(null);
@@ -43,7 +47,13 @@ const Chat = ({ user }) => {
     .subscribe();
 
   const initilizeChat = async () => {
-    const { data } = await fetchMessages(params, rangeLimitter);
+    const messageCountInitial = await fetchMessagesCount(params);
+    setMessageCount(messageCountInitial);
+    const data = await fetchMessages(
+      params,
+      rangeLimitter,
+      messageCountInitial
+    );
     setMessages(data);
     setSession(await getSession());
     setTimeout(() => {
@@ -52,11 +62,11 @@ const Chat = ({ user }) => {
   };
 
   const fillChatWithOlderMessages = async () => {
-    const { data: olderMessages, count } = await fetchMessages(
+    const olderMessages = await fetchMessages(
       params,
-      rangeLimitter
+      rangeLimitter,
+      messageCount
     );
-    setMessageCount(count);
     if (olderMessages) {
       setMessages((prevMessages) => [...olderMessages, ...prevMessages]);
       setNewMessageTrigger(false);
@@ -90,6 +100,7 @@ const Chat = ({ user }) => {
   useEffect(() => {
     if (newMessageTrigger === true) {
       messagesEndRef.current?.scrollIntoView({ behaviour: "smooth" });
+      setMessageToSend("");
       setNewMessageTrigger(false);
     }
   }, [newMessageTrigger]);
@@ -170,17 +181,32 @@ const Chat = ({ user }) => {
           size="30px"
           className="mr-2"
           onClick={(e) =>
-            handleSubmitMessage(e, params, user, messages, messageToSend)
+            handleSubmitMessage(
+              e,
+              params,
+              user,
+              messages,
+              messageToSend,
+              receiverUser
+            )
           }
         />
         <input
           className="h-[50%] w-[80%] rounded-md px-5"
           placeholder="Type your message here.."
+          value={messageToSend}
           type="text"
           onChange={(e) => setMessageToSend(e.target.value)}
           onKeyDown={(e) =>
             e.key === "Enter"
-              ? handleSubmitMessage(e, params, user, messages, messageToSend)
+              ? handleSubmitMessage(
+                  e,
+                  params,
+                  user,
+                  messages,
+                  messageToSend,
+                  receiverUser
+                )
               : null
           }
         />

@@ -17,8 +17,14 @@ const Home = () => {
     .channel("db-messages")
     .on(
       "postgres_changes",
-      { event: "INSERT", schema: "public", table: "messages" },
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "messages",
+        filter: `receiver=eq.${session?.data.session.user.id}`,
+      },
       (payload) => {
+        console.log(payload);
         const payloadChatId = payload.new.chatID;
         setChats((prevChats) => {
           const oldChats = prevChats.filter(
@@ -44,7 +50,7 @@ const Home = () => {
   useEffect(() => {
     getCurrentSession();
   }, []);
-
+  console.log(chats);
   return (
     <div className="home-container">
       <div className="home-container01">
@@ -74,13 +80,15 @@ const Home = () => {
         <ul className="home-ul list">
           {(chats !== null &&
             chats.length > 0 &&
-            chats.map((chat) => (
-              <ChatLabel
-                key={chat.id}
-                chat={chat}
-                currentUserId={session.data.session.user.id}
-              />
-            ))) || <CircleLoader size="100px" />}
+            chats
+              .sort((a, b) => b.createdAt > a.createdAt)
+              .map((chat) => (
+                <ChatLabel
+                  key={chat.id}
+                  chat={chat}
+                  currentUserId={session.data.session.user.id}
+                />
+              ))) || <CircleLoader size="100px" />}
         </ul>
       </div>
       <div className="home-container15">
