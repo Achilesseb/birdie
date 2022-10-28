@@ -18,23 +18,15 @@ export const fetchMessagesCount = async (params) => {
 };
 
 export const fetchMessages = async (params, range, messageCount) => {
-  const messageFetchLimit = 30;
-  const bottomLimit =
-    messageCount - (range + 1) * messageFetchLimit > 0
-      ? messageCount - (range + 1) * messageFetchLimit
-      : 0;
-  const topLimit = messageCount - messageFetchLimit * range - 1;
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .eq("chatID", `${params.id}`)
+    .order("created_at", { ascending: true });
+  // .range(bottomLimit, topLimit);
 
-  if (bottomLimit >= 0 && topLimit > 0) {
-    const { data, error } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("chatID", `${params.id}`)
-      .order("created_at", { ascending: true })
-      .range(bottomLimit, topLimit);
-
-    return data;
-  }
+  return data;
+  // }
 };
 
 export const fetchCurrentUserChats = async (userId) => {
@@ -50,7 +42,6 @@ export const handleSubmitMessage = async (
   e,
   params,
   user,
-  messages,
   messageToSend,
   receiverUser
 ) => {
