@@ -6,13 +6,17 @@ import { RiLockPasswordFill, RiAccountCircleFill } from "react-icons/ri";
 import ButtonComponent from "../ButtonComponent";
 import { useNavigate } from "react-router-dom";
 import useLogin from "../../customHooks/useLogin";
+import { useState } from "react";
+import Error from "../ErrorComponent";
 const LoginForm = () => {
   const { login, error, isPending, setLoginPassword, setEmail } = useLogin();
+  const [loginErrorStatus, setLoginErrorStatus] = useState(false);
   const navigate = useNavigate();
 
   const handleLoginClick = async () => {
     await login();
-    navigate("/home");
+    if (error !== null) navigate("/home");
+    else setLoginErrorStatus(true);
   };
 
   return (
@@ -57,6 +61,7 @@ const LoginForm = () => {
               onChange={(e) => setLoginPassword(e.target.value)}
             />
           </div>
+          {loginErrorStatus === true ? <Error error={error} /> : null}
         </form>
         <div className="mb-12 flex flex-col items-center justify-evenly">
           <ButtonComponent

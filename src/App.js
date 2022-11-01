@@ -29,8 +29,8 @@ function App() {
   return (
     <div className="h-full w-full">
       <Router>
-        {/* <Navigate exact from="/" to="/login" /> */}
         <Routes>
+          <Route path="/" element={<Navigate replace to="/login" />} />
           <Route exact path="/login" element={<LoginForm />} />
           <Route exact path="/signup" element={<SignUpForm />} />
           <Route exact path="/home" element={<Home />} />

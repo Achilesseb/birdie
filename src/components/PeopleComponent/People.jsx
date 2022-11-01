@@ -15,7 +15,7 @@ const People = () => {
       await fetchUserFriendListData(await fetchUserFriendListIds(uuid))
     );
   };
-
+  console.log(friendsListData);
   useEffect(() => {
     initilizeFriendList();
   }, []);

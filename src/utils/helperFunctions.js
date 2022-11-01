@@ -1,3 +1,4 @@
+import NoWorkResult from "postcss/lib/no-work-result";
 import { supabase } from "../index";
 
 export const addLeadingZeros = (num, length) => {
@@ -75,4 +76,47 @@ export const fetchUserFriendListData = async (ids) => {
 const getData = async (id) => {
   const { data } = await supabase.from("profiles").select("*").eq("id", id);
   return await data;
+};
+
+export const transformDate = (date, timezone) => {
+  return new Date(
+    typeof date === "string" ? new Date(date) : date
+  ).toLocaleString("en-US", { timeZone: timezone });
+};
+
+const daysInYear = (year) => {
+  return year % 4 === 0 && year % 100 !== 0 ? 366 : 365;
+};
+export const timeSince = (date) => {
+  console.log(date);
+  const yearDays = daysInYear(new Date().getFullYear());
+  const yearSeconds = 60 * 60 * 24 * yearDays;
+  const monthSeconds = yearSeconds / 12;
+  const daySeconds = monthSeconds / 30;
+  const hourSeconds = daySeconds / 24;
+  const minuteSeconds = hourSeconds / 60;
+  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+
+  let interval = seconds / yearSeconds;
+
+  if (interval > 1) {
+    return Math.floor(interval) + " y";
+  }
+  interval = seconds / monthSeconds;
+  if (interval > 1) {
+    return Math.floor(interval) + " m";
+  }
+  interval = seconds / daySeconds;
+  if (interval > 1) {
+    return Math.floor(interval) + " d";
+  }
+  interval = seconds / hourSeconds;
+  if (interval > 1) {
+    return Math.floor(interval) + " h";
+  }
+  interval = seconds / minuteSeconds;
+  if (interval > 1) {
+    return Math.floor(interval) + " min";
+  }
+  return Math.floor(seconds) + " sec";
 };

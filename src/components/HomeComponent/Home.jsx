@@ -2,17 +2,19 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../index.js";
 import "./home.css";
+import useLogout from "../../customHooks/useLogout.js";
 import birdieLogo from "../../img/birdie-icon.png";
-import ChatLabel from "../ChatComponent/ChatLabel.jsx";
-import DropDown from "../DropDownComponent/DropDown.jsx";
+import ChatLabel from "./ChatLabel.jsx";
 import { fetchCurrentUserChats } from "../../utils/helperFunctions.js";
 import { CircleLoader } from "react-spinners";
+import NavigationBar from "../NavigationBarComponent/NavigationBar.jsx";
+import { FiLogOut } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [session, setSession] = useState();
   const [chats, setChats] = useState(null);
-  const [dropDownStatus, setDropDownStatus] = useState(false);
+  const logout = useLogout();
   const navigate = useNavigate();
   supabase
     .channel("db-messages")
@@ -47,6 +49,10 @@ const Home = () => {
     )
     .subscribe();
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
   const getCurrentSession = async () => {
     const session = await supabase.auth.getSession();
     const userId = session.data.session.user.id;
@@ -68,20 +74,10 @@ const Home = () => {
           <span className="home-text">Birdie</span>
         </div>
         <div className="home-container04">
-          <svg
-            viewBox="0 0 1024 1024"
-            className="home-icon"
-            onClick={() => setDropDownStatus(!dropDownStatus)}
-          >
-            <path d="M128 256h768v86h-768v-86zM128 554v-84h768v84h-768zM128 768v-86h768v86h-768z"></path>
-          </svg>
+          <FiLogOut size="40" color="white" onClick={handleLogout} />
         </div>
       </div>
-
       <div className="home-container05">
-        {dropDownStatus === true ? (
-          <DropDown userId={session?.data.session.user.id} />
-        ) : null}
         <div className="home-container06"></div>
         <div className="home-container07"></div>
         <div className="home-container08"></div>
@@ -98,6 +94,7 @@ const Home = () => {
             ))) || <CircleLoader size="100px" />}
         </ul>
       </div>
+      <NavigationBar />
     </div>
   );
 };

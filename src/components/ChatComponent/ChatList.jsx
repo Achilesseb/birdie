@@ -1,61 +1,8 @@
-import defaultUserImage from "../../img/default.jpg";
 import { useEffect, useState, useRef } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { getSession, fetchMessages } from "../../utils/helperFunctions";
 import { supabase } from "../../index";
-
-const ChatItem = ({ props, top }) => {
-  const {
-    messages,
-    messagesIntermediateRef,
-    session,
-    message,
-    index,
-    receiverUser,
-  } = props;
-  return (
-    <div
-      style={{
-        top: top,
-        height: "auto",
-        position: "absolute",
-        display: "flex",
-        width: "100%",
-        alignItems:
-          message.sender === session.session.user.id ? "start" : "end",
-        flexDirection:
-          message.sender === session.session.user.id ? "row" : "row-reverse",
-      }}
-      key={message.id}
-      ref={messagesIntermediateRef}
-    >
-      <div className="mx-1 h-full w-[10%] rounded-full ">
-        {messages[index]?.sender !== messages[index + 1]?.sender ? (
-          <img
-            className="rounded-full"
-            src={
-              message.sender === receiverUser.id
-                ? receiverUser.avatar_url
-                : session.session.user.identities?.[0].identity_data
-                    ?.avatar_url || defaultUserImage
-            }
-            referrerPolicy="no-referrer"
-            alt="user"
-          />
-        ) : null}
-      </div>
-      <div
-        className={`h-full w-[70%] break-before-auto break-words rounded-xl ${
-          message.sender === session.session.user.id
-            ? "bg-red-400 p-2 text-white"
-            : "bg-slate-500 p-2 text-white"
-        }`}
-      >
-        {message.text}
-      </div>
-    </div>
-  );
-};
+import ChatItem from "./ChatItem";
 
 const ChatList = ({ setMessageToSend }) => {
   const [messages, setMessages] = useState(null);
@@ -67,6 +14,9 @@ const ChatList = ({ setMessageToSend }) => {
   const messagesIntermediateRef = useRef(null);
   const [session, setSession] = useState(null);
   const channel = supabase.channel("db-messages");
+  const [itemsNumberDisplay, setItemsNumberDisplay] = useState(14);
+  const [itemsDisplayStart, setItemsDisplayStart] = useState(0);
+  const [itemsDisplayEnd, setItemsDisplayEnd] = useState(14);
 
   channel
     .on(
@@ -119,10 +69,6 @@ const ChatList = ({ setMessageToSend }) => {
       setItemsDisplayEnd(currentIndex + itemsNumberDisplay);
     }
   };
-
-  const [itemsNumberDisplay, setItemsNumberDisplay] = useState(14);
-  const [itemsDisplayStart, setItemsDisplayStart] = useState(0);
-  const [itemsDisplayEnd, setItemsDisplayEnd] = useState(14);
 
   useEffect(() => {
     setItemsNumberDisplay(Math.trunc(viewport.current.clientHeight / 40));

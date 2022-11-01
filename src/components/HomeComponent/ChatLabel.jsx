@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../index";
 import "../HomeComponent/home.css";
 import { useNavigate } from "react-router-dom";
+import { timeSince } from "../../utils/helperFunctions";
 
 const ChatLabel = ({ chat, currentUserId }) => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const ChatLabel = ({ chat, currentUserId }) => {
     getReceiverData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const handleNavigateToSpecificChat = (target) => {
     return navigate(`/chat/${target}`, {
       replace: true,
@@ -57,6 +59,9 @@ const ChatLabel = ({ chat, currentUserId }) => {
                   : lastMessage?.text.length > 20
                   ? lastMessage?.text.substring(0, 20) + "..."
                   : lastMessage?.text) || "Send a message to .."}
+              </span>
+              <span className="home-text2">
+                {timeSince(lastMessage.created_at)}
               </span>
             </div>
           </div>
